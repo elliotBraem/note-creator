@@ -1,0 +1,2 @@
+- Melhorar o algoritmo de re renderizar as mensagens.
+Acho que está pesado por estar renderizando toda hora a lista de msg. Checar isso!
