@@ -11,7 +11,7 @@ interface CreateThingPayload {
   description: string
 }
 
-const createThing = (payload: CreateThingPayload) => {
+const createThing = (payload: any) => {
   return request<CreateThingResponse>("create-thing", payload);
 };
 export default createThing;

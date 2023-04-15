@@ -1,44 +1,46 @@
+import { CheckIcon } from "@chakra-ui/icons";
 import {
+  Box,
   Button,
+  Checkbox,
   Flex,
-  Input,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Textarea,
-  useDisclosure
+  VStack,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import Loading from "./Loading";
+import Select from "react-select";
 import createThing from "../services/createThing";
+import Loading from "./Loading";
+import RichTextExample from "./RichTextEditor";
 
 const CreatorForm = () => {
   // UPDATE STATE TO HANDLE YOUR TYPE
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  
+
+  const [value, setValue] = useState([
+    { type: "paragraph", children: [{ text: "" }] },
+  ]);
+  const [selectedDomains, setSelectedDomains] = useState([]);
+  const [publish, setPublish] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [message, setMessage] = useState<string>("");
-
-  // UPDATE HANDLE METHODS TO MATCH YOUR STATE
-  const handleTitleChange = (event: { target: { value: any } }) => {
-    setTitle(event.target.value);
-  };
-
-  const handleDescriptionChange = (event: { target: { value: any } }) => {
-    setDescription(event.target.value);
-  };
 
   const handleSubmit = async () => {
     setIsLoading(true);
     // UPDATE OBJECT TO MATCH YOUR TYPE
     const response = await createThing({
-      title,
-      description,
+      value,
+      selectedDomains,
+      publish,
     });
     if (response.error) {
       setMessage(response.error);
@@ -51,6 +53,15 @@ const CreatorForm = () => {
     }
     setIsLoading(false);
   };
+  const domains = [
+    { value: "domain1", label: "Domain 1" },
+    { value: "domain2", label: "Domain 2" },
+    { value: "domain3", label: "Domain 3" },
+  ];
+
+  const handleDomainChange = (selectedOptions: any) => {
+    setSelectedDomains(selectedOptions);
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -58,27 +69,32 @@ const CreatorForm = () => {
 
   return (
     <>
-      <Flex flexDirection="column" alignItems="left" mt={2}>
-        {/* ADD YOUR INPUTS HERE */}
-        <Input
-          placeholder="Title"
-          value={title}
-          onChange={handleTitleChange}
-          mb={2}
-        />
-        <Textarea
-          placeholder="Description"
-          value={description}
-          onChange={handleDescriptionChange}
-          mb={4}
-        />
+      <VStack spacing={4} width="100%" height="100vh">
+        <Box>
+          <RichTextExample />
+        </Box>
+        <Flex>
+          <Select
+            isMulti
+            options={domains}
+            onChange={handleDomainChange}
+            placeholder="Select domains to post"
+          />
+        <Checkbox
+          isChecked={publish}
+          onChange={(e) => setPublish(e.target.checked)}
+        >
+          Publish
+        </Checkbox>
         <Button
+          leftIcon={<CheckIcon />}
+          colorScheme="blue"
           onClick={handleSubmit}
-          isDisabled={title.length < 1 || description.length < 1}
         >
           Submit
         </Button>
-      </Flex>
+        </Flex>
+      </VStack>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
